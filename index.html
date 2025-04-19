@@ -2,39 +2,46 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tool Dự Đoán TÀI XỈU DuyBaodz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tool TÀI XỈU | DUY BẢO</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       font-family: 'Orbitron', sans-serif;
       background: url('https://tophinhanhdep.com/wp-content/uploads/2021/11/Neon-City-Cyberpunk-Wallpapers-1.jpg') no-repeat center center fixed;
       background-size: cover;
-      color: #00fff2;
-      text-align: center;
-      padding-top: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .container {
+    * { box-sizing: border-box; }
+
+    .container, .auth-container, .start-container {
       background: rgba(0, 0, 0, 0.6);
       border: 2px solid #00fff2;
       border-radius: 15px;
-      display: inline-block;
       padding: 30px 40px;
       box-shadow: 0 0 20px #00fff2;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      display: none;
     }
-    h1 {
-      font-size: 40px;
-      text-shadow: 0 0 10px #00fff2;
-    }
-    #md5Input {
+
+    input {
       margin-top: 20px;
       padding: 10px;
       border-radius: 5px;
       border: none;
-      width: 300px;
+      width: 100%;
       font-size: 16px;
     }
-    #predictBtn {
+
+    button {
       margin-top: 20px;
       padding: 15px 40px;
       background-color: #00fff2;
@@ -45,40 +52,127 @@
       border-radius: 10px;
       cursor: pointer;
       box-shadow: 0 0 10px #00fff2;
+      width: 100%;
     }
+
     #result {
       margin-top: 30px;
       font-size: 28px;
       color: yellow;
       text-shadow: 0 0 10px yellow;
     }
+
+    #loadingScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: #00fff2;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 999;
+      animation: fadeOut 1s ease 2.5s forwards;
+    }
+
+    #loadingScreen img {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
   </style>
 </head>
-<body>
-  <div class="container">
+
+<body oncontextmenu="return false" onkeydown="return blockKeys(event)">
+  <!-- Âm thanh Welcome giọng Việt -->
+  <audio id="welcomeAudio" src="https://cdn.pixabay.com/download/audio/2023/03/12/audio_6e92ce409a.mp3?filename=chao-mung-den-voi-duy-bao-122893.mp3" preload="auto"></audio>
+
+  <!-- Màn hình loading -->
+  <div id="loadingScreen">
+    <img src="https://i.imgur.com/x1uEqKF.jpeg" alt="Logo">
+    <div>Đang khởi động tool Duy Bảo...</div>
+  </div>
+
+  <!-- Màn hình nút bắt đầu -->
+  <div class="start-container" id="startScreen">
+    <img src="https://i.imgur.com/x1uEqKF.jpeg" alt="Logo" style="width: 100px; margin-bottom: 20px;" />
+    <button onclick="startApp()">BẮT ĐẦU</button>
+  </div>
+
+  <!-- Giao diện nhập key -->
+  <div class="auth-container" id="authSection">
+    <img src="https://i.imgur.com/x1uEqKF.jpeg" alt="Logo" style="width: 100px; margin-bottom: 20px;" />
+    <h1>Nhập KEY để truy cập</h1>
+    <input type="password" id="keyInput" placeholder="Nhập key truy cập..." /><br />
+    <button onclick="checkKey()">XÁC NHẬN</button>
+    <div id="authResult" style="color:red; margin-top:15px;"></div>
+  </div>
+
+  <!-- Giao diện chính -->
+  <div class="container" id="mainApp">
+    <img src="https://i.imgur.com/x1uEqKF.jpeg" alt="Logo" style="width: 100px; margin-bottom: 20px;" />
     <h1>TÀI XỈU<br>t.me/ngoclinh2809</h1>
-    <input type="text" id="md5Input" placeholder="Nhập mã MD5..." />
-    <br />
-    <button id="predictBtn">DỰ ĐOÁN</button>
+    <input type="text" id="md5Input" placeholder="Nhập mã MD5..." /><br />
+    <button onclick="predict()">DỰ ĐOÁN</button>
     <div id="result">Kết quả : </div>
   </div>
 
   <script>
-    const predictBtn = document.getElementById('predictBtn');
-    const result = document.getElementById('result');
+    const correctKey = '1306';
 
-    function fakePredict(md5) {
-      if (!md5 || md5.trim().length === 0) return 'Vui lòng nhập mã MD5';
-      const lastChar = md5.trim().slice(-1);
-      const even = '02468ace';
-      return even.includes(lastChar.toLowerCase()) ? 'KẾT QUẢ: XỈU' : 'KẾT QUẢ: TÀI';
+    window.onload = function () {
+      setTimeout(() => {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('startScreen').style.display = 'block';
+      }, 2500);
+    };
+
+    function startApp() {
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('authSection').style.display = 'block';
+      document.getElementById('welcomeAudio').play();
     }
 
-    predictBtn.addEventListener('click', () => {
-      const md5 = document.getElementById('md5Input').value;
-      const prediction = fakePredict(md5);
-      result.textContent = prediction;
-    });
+    function checkKey() {
+      const inputKey = document.getElementById('keyInput').value.trim();
+      const authResult = document.getElementById('authResult');
+      if (inputKey === correctKey) {
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+      } else {
+        authResult.textContent = 'Key không hợp lệ!';
+      }
+    }
+
+    function predict() {
+      const md5 = document.getElementById('md5Input').value.trim();
+      if (!md5) {
+        document.getElementById('result').textContent = 'Vui lòng nhập mã MD5!';
+        return;
+      }
+      const even = '02468ace';
+      const lastChar = md5.slice(-1).toLowerCase();
+      const ketQua = even.includes(lastChar) ? 'KẾT QUẢ: XỈU' : 'KẾT QUẢ: TÀI';
+      document.getElementById('result').textContent = ketQua;
+    }
+
+    function blockKeys(e) {
+      const blocked = ['F12', 'I', 'U'];
+      if ((e.ctrlKey && blocked.includes(e.key.toUpperCase())) || e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+    }
   </script>
 </body>
 </html>
