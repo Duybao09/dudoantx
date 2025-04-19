@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool Dự Đoán TÀI XỈU DuyBaodz</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: url('https://tophinhanhdep.com/wp-content/uploads/2021/11/Neon-City-Cyberpunk-Wallpapers-1.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #00fff2;
+      text-align: center;
+      padding-top: 100px;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #00fff2;
+      border-radius: 15px;
+      display: inline-block;
+      padding: 30px 40px;
+      box-shadow: 0 0 20px #00fff2;
+    }
+    h1 {
+      font-size: 40px;
+      text-shadow: 0 0 10px #00fff2;
+    }
+    #md5Input {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      width: 300px;
+      font-size: 16px;
+    }
+    #predictBtn {
+      margin-top: 20px;
+      padding: 15px 40px;
+      background-color: #00fff2;
+      color: black;
+      font-weight: bold;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00fff2;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 28px;
+      color: yellow;
+      text-shadow: 0 0 10px yellow;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TÀI XỈU<br>t.me/ngoclinh2809</h1>
+    <input type="text" id="md5Input" placeholder="Nhập mã MD5..." />
+    <br />
+    <button id="predictBtn">DỰ ĐOÁN</button>
+    <div id="result">Kết quả : </div>
+  </div>
+
+  <script>
+    const predictBtn = document.getElementById('predictBtn');
+    const result = document.getElementById('result');
+
+    function fakePredict(md5) {
+      if (!md5 || md5.trim().length === 0) return 'Vui lòng nhập mã MD5';
+      const lastChar = md5.trim().slice(-1);
+      const even = '02468ace';
+      return even.includes(lastChar.toLowerCase()) ? 'KẾT QUẢ: XỈU' : 'KẾT QUẢ: TÀI';
+    }
+
+    predictBtn.addEventListener('click', () => {
+      const md5 = document.getElementById('md5Input').value;
+      const prediction = fakePredict(md5);
+      result.textContent = prediction;
+    });
+  </script>
+</body>
+</html>
